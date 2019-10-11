@@ -8,16 +8,15 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
-import android.provider.DocumentsProvider;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -32,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
     private String fileName;
     private File file;
     private String selectedFile;
+    private TextView selectedFileTextView;
 
     private static final int READ_REQUEST_CODE = 42;
 
@@ -43,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
 
         getLocation = findViewById(R.id.getLocation);
         textView = findViewById(R.id.textView);
+        selectedFileTextView = findViewById(R.id.selectedFile);
 
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         locationListener = new LocationListener() {
@@ -148,9 +149,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void createMap(View view){
-        Intent mapIntent = new Intent(this,MapsActivity.class);
-        mapIntent.putExtra("fileName",selectedFile);
-        startActivity(mapIntent);
+        if(selectedFile == null){
+            Context context = getApplicationContext();
+            CharSequence text = "Please select file!";
+            int duration = Toast.LENGTH_SHORT;
+
+            Toast toast = Toast.makeText(context, text, duration);
+            toast.show();
+        }else {
+            Intent mapIntent = new Intent(this, MapsActivity.class);
+            mapIntent.putExtra("fileName", selectedFile);
+            startActivity(mapIntent);
+        }
     }
 
     public void browseFiles(View view){
@@ -166,7 +176,7 @@ public class MainActivity extends AppCompatActivity {
                                  Intent resultData) {
         String[] fileUri = resultData.getData().getLastPathSegment().split("/");
         selectedFile = fileUri[fileUri.length-1];
-        //selectedFile = resultData.getData().getLastPathSegment();
-       Log.i("file result data",selectedFile);
+        selectedFileTextView.setText(selectedFile);
+
     }
 }
